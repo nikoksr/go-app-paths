@@ -4,10 +4,10 @@
 package gap
 
 import (
-	"fmt"
 	"testing"
 )
 
+//nolint:gocognit // Test function is long but straightforward.
 func TestPaths(t *testing.T) {
 	tests := []struct {
 		scope      *Scope
@@ -151,7 +151,6 @@ func TestConfigLookups(t *testing.T) {
 			t.Errorf("Error looking up config: %s", err)
 		}
 		if len(r) == 0 {
-			fmt.Println(r)
 			t.Skipf("Expected config file not found: %s (integration test, skipping)", tt.result[0])
 			continue
 		}
@@ -177,7 +176,6 @@ func TestDataLookups(t *testing.T) {
 			t.Errorf("Error looking up data file: %s", err)
 		}
 		if len(r) == 0 {
-			fmt.Println(r)
 			t.Skipf("Expected data file not found: %s (integration test, skipping)", tt.result[0])
 			continue
 		}

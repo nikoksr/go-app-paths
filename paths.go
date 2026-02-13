@@ -10,9 +10,9 @@ import (
 
 var (
 	// ErrInvalidScope gets returned when an invalid scope type has been set.
-	ErrInvalidScope = errors.New("Invalid scope type")
+	ErrInvalidScope = errors.New("invalid scope type")
 	// ErrRetrievingPath gets returned when the path could not be resolved.
-	ErrRetrievingPath = errors.New("Could not retrieve path")
+	ErrRetrievingPath = errors.New("could not retrieve path")
 )
 
 // ScopeType specifies whether returned paths are user-specific or system-wide.
@@ -106,7 +106,7 @@ func (s *Scope) CacheDir() (string, error) {
 
 // DataDir returns the full path to the application's default data directory.
 func (s *Scope) DataDir() (string, error) {
-	p, err := s.dataDirBase()
+	p, err := s.dataDir()
 	if err != nil {
 		return p, err
 	}
@@ -115,7 +115,7 @@ func (s *Scope) DataDir() (string, error) {
 
 // LogDir returns the full path to the application's default log directory.
 func (s *Scope) LogDir() (string, error) {
-	p, err := s.logDirBase()
+	p, err := s.logDir()
 	if err != nil {
 		return p, err
 	}
@@ -124,7 +124,7 @@ func (s *Scope) LogDir() (string, error) {
 
 // LogPath returns the full path to the application's default log file.
 func (s *Scope) LogPath(filename string) (string, error) {
-	p, err := s.logDirBase()
+	p, err := s.logDir()
 	if err != nil {
 		return p, err
 	}
@@ -135,7 +135,7 @@ func (s *Scope) LogPath(filename string) (string, error) {
 // DataPath returns the full path to a file in the application's default data
 // directory.
 func (s *Scope) DataPath(filename string) (string, error) {
-	p, err := s.dataDirBase()
+	p, err := s.dataDir()
 	if err != nil {
 		return p, err
 	}
@@ -178,7 +178,7 @@ func (s *Scope) LookupDataFile(filename string) ([]string, error) {
 // passed path with the home directory of the current user.
 func expandUser(path string) string {
 	if u, err := homedir.Dir(); err == nil {
-		return strings.Replace(path, "~", u, -1)
+		return strings.ReplaceAll(path, "~", u)
 	}
 	return path
 }

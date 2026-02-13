@@ -9,6 +9,7 @@ import (
 	"strings"
 )
 
+//nolint:gochecknoglobals // Readonly globals for default paths.
 var (
 	defaultDataDirs   = []string{"/usr/local/share", "/usr/share"}
 	defaultConfigDirs = []string{"/etc/xdg", "/etc"}
@@ -16,15 +17,15 @@ var (
 	defaultCacheDir   = "/var/cache"
 )
 
-// appendPaths appends the app-name and further variadic parts to a path
+// appendPaths appends the app-name and further variadic parts to a path.
 func (s *Scope) appendPaths(path string, parts ...string) string {
 	paths := []string{path, s.Vendor, s.App}
 	paths = append(paths, parts...)
 	return filepath.Join(paths...)
 }
 
-// dataDirBase returns the base path to the data directory.
-func (s *Scope) dataDirBase() (string, error) {
+// dataDir returns the base path to the data directory.
+func (s *Scope) dataDir() (string, error) {
 	switch s.Type {
 	case System:
 		return defaultDataDirs[0], nil
@@ -43,29 +44,20 @@ func (s *Scope) dataDirBase() (string, error) {
 	return "", ErrInvalidScope
 }
 
-// dataDir returns the full path to the data directory.
-func (s *Scope) dataDir() (string, error) {
-	base, err := s.dataDirBase()
-	if err != nil {
-		return "", err
-	}
-	return s.appendPaths(base), nil
-}
-
 // dataDirs returns a priority-sorted slice of data dirs.
 func (s *Scope) dataDirs() ([]string, error) {
 	var sl []string
 
 	switch s.Type {
 	case CustomHome:
-		path, err := s.dataDirBase()
+		path, err := s.dataDir()
 		if err != nil {
 			return sl, err
 		}
 		sl = append(sl, path)
 
 	case User:
-		path, err := s.dataDirBase()
+		path, err := s.dataDir()
 		if err != nil {
 			return sl, err
 		}
@@ -75,9 +67,7 @@ func (s *Scope) dataDirs() ([]string, error) {
 		if path != "" {
 			paths := strings.Split(path, string(os.PathListSeparator))
 
-			for _, p := range paths {
-				sl = append(sl, p)
-			}
+			sl = append(sl, paths...)
 		}
 
 		fallthrough
@@ -132,9 +122,7 @@ func (s *Scope) configDirs() ([]string, error) {
 		if path != "" {
 			paths := strings.Split(path, string(os.PathListSeparator))
 
-			for _, p := range paths {
-				sl = append(sl, p)
-			}
+			sl = append(sl, paths...)
 		}
 
 		fallthrough
@@ -166,8 +154,8 @@ func (s *Scope) cacheDir() (string, error) {
 	return "", ErrInvalidScope
 }
 
-// logDirBase returns the base path to the log directory.
-func (s *Scope) logDirBase() (string, error) {
+// logDir returns the base path to the log directory.
+func (s *Scope) logDir() (string, error) {
 	switch s.Type {
 	case System:
 		return defaultLogDir, nil
@@ -176,17 +164,8 @@ func (s *Scope) logDirBase() (string, error) {
 		fallthrough
 
 	case CustomHome:
-		return s.dataDirBase()
+		return s.dataDir()
 	}
 
 	return "", ErrInvalidScope
-}
-
-// logDir returns the full path to the log directory.
-func (s *Scope) logDir() (string, error) {
-	base, err := s.logDirBase()
-	if err != nil {
-		return "", err
-	}
-	return s.appendPaths(base), nil
 }
