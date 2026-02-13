@@ -45,8 +45,8 @@ func (s *Scope) appendPaths(path string, parts ...string) string {
 	return filepath.Join(paths...)
 }
 
-// dataDir returns the full path to the data directory.
-func (s *Scope) dataDir() (string, error) {
+// dataDirBase returns the base path to the data directory without vendor/app.
+func (s *Scope) dataDirBase() (string, error) {
 	var rfid syscall.GUID
 
 	switch s.Type {
@@ -70,6 +70,16 @@ func (s *Scope) dataDir() (string, error) {
 
 	if path, err = filepath.Abs(path); err != nil {
 		return "", ErrRetrievingPath
+	}
+
+	return path, nil
+}
+
+// dataDir returns the full path to the data directory.
+func (s *Scope) dataDir() (string, error) {
+	path, err := s.dataDirBase()
+	if err != nil {
+		return "", err
 	}
 
 	return filepath.Join(path, s.Vendor, s.App), nil

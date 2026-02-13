@@ -1,4 +1,4 @@
-module github.com/muesli/go-app-paths
+module github.com/nikoksr/go-app-paths
 
 go 1.14
 

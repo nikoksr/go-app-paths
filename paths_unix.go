@@ -23,8 +23,8 @@ func (s *Scope) appendPaths(path string, parts ...string) string {
 	return filepath.Join(paths...)
 }
 
-// dataDir returns the full path to the data directory.
-func (s *Scope) dataDir() (string, error) {
+// dataDirBase returns the base path to the data directory.
+func (s *Scope) dataDirBase() (string, error) {
 	switch s.Type {
 	case System:
 		return defaultDataDirs[0], nil
@@ -43,20 +43,29 @@ func (s *Scope) dataDir() (string, error) {
 	return "", ErrInvalidScope
 }
 
+// dataDir returns the full path to the data directory.
+func (s *Scope) dataDir() (string, error) {
+	base, err := s.dataDirBase()
+	if err != nil {
+		return "", err
+	}
+	return s.appendPaths(base), nil
+}
+
 // dataDirs returns a priority-sorted slice of data dirs.
 func (s *Scope) dataDirs() ([]string, error) {
 	var sl []string
 
 	switch s.Type {
 	case CustomHome:
-		path, err := s.dataDir()
+		path, err := s.dataDirBase()
 		if err != nil {
 			return sl, err
 		}
 		sl = append(sl, path)
 
 	case User:
-		path, err := s.dataDir()
+		path, err := s.dataDirBase()
 		if err != nil {
 			return sl, err
 		}
@@ -157,8 +166,8 @@ func (s *Scope) cacheDir() (string, error) {
 	return "", ErrInvalidScope
 }
 
-// logDir returns the full path to the log dir.
-func (s *Scope) logDir() (string, error) {
+// logDirBase returns the base path to the log directory.
+func (s *Scope) logDirBase() (string, error) {
 	switch s.Type {
 	case System:
 		return defaultLogDir, nil
@@ -167,8 +176,17 @@ func (s *Scope) logDir() (string, error) {
 		fallthrough
 
 	case CustomHome:
-		return s.dataDir()
+		return s.dataDirBase()
 	}
 
 	return "", ErrInvalidScope
+}
+
+// logDir returns the full path to the log directory.
+func (s *Scope) logDir() (string, error) {
+	base, err := s.logDirBase()
+	if err != nil {
+		return "", err
+	}
+	return s.appendPaths(base), nil
 }

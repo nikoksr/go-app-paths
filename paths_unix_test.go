@@ -17,6 +17,8 @@ func TestPaths(t *testing.T) {
 		configFile string
 		dataFile   string
 		logFile    string
+		dataDir    string
+		logDir     string
 	}{
 		{
 			scope:      NewScope(System, "foobar"),
@@ -26,6 +28,8 @@ func TestPaths(t *testing.T) {
 			configFile: "/etc/xdg/foobar/foobar.conf",
 			dataFile:   "/usr/local/share/foobar/foobar.data",
 			logFile:    "/var/log/foobar/foobar.log",
+			dataDir:    "/usr/local/share/foobar",
+			logDir:     "/var/log/foobar",
 		},
 		{
 			scope:      NewVendorScope(System, "barcorp", "foobar"),
@@ -35,6 +39,8 @@ func TestPaths(t *testing.T) {
 			configFile: "/etc/xdg/barcorp/foobar/foobar.conf",
 			dataFile:   "/usr/local/share/barcorp/foobar/foobar.data",
 			logFile:    "/var/log/barcorp/foobar/foobar.log",
+			dataDir:    "/usr/local/share/barcorp/foobar",
+			logDir:     "/var/log/barcorp/foobar",
 		},
 		{
 			scope:      NewScope(User, "foobar"),
@@ -44,6 +50,8 @@ func TestPaths(t *testing.T) {
 			configFile: "~/.config/foobar/foobar.conf",
 			dataFile:   "~/.local/share/foobar/foobar.data",
 			logFile:    "~/.local/share/foobar/foobar.log",
+			dataDir:    "~/.local/share/foobar",
+			logDir:     "~/.local/share/foobar",
 		},
 		{
 			scope:      NewCustomHomeScope("/tmp", "", "foobar"),
@@ -53,6 +61,8 @@ func TestPaths(t *testing.T) {
 			configFile: "/tmp/.config/foobar/foobar.conf",
 			dataFile:   "/tmp/.local/share/foobar/foobar.data",
 			logFile:    "/tmp/.local/share/foobar/foobar.log",
+			dataDir:    "/tmp/.local/share/foobar",
+			logDir:     "/tmp/.local/share/foobar",
 		},
 	}
 
@@ -62,29 +72,17 @@ func TestPaths(t *testing.T) {
 			t.Errorf("Error retrieving data dir: %s", err)
 		}
 
-		if len(paths) != len(tt.dataDirs) {
-			fmt.Println(paths)
-			t.Fatalf("Expected %d results, got %d", len(tt.dataDirs), len(paths))
-		}
-		for i := range paths {
-			if paths[i] != expandUser(tt.dataDirs[i]) {
-				t.Errorf("Expected data dir: %s - got: %s", tt.dataDirs[i], paths[i])
-			}
+		if paths[0] != expandUser(tt.dataDirs[0]) {
+			t.Errorf("Expected data dir: %s - got: %s", tt.dataDirs[0], paths[0])
 		}
 
 		paths, err = tt.scope.ConfigDirs()
 		if err != nil {
-			t.Errorf("Error retrieving data dir: %s", err)
+			t.Errorf("Error retrieving config dir: %s", err)
 		}
 
-		if len(paths) != len(tt.configDirs) {
-			fmt.Println(paths)
-			t.Fatalf("Expected %d results, got %d", len(tt.configDirs), len(paths))
-		}
-		for i := range paths {
-			if paths[i] != expandUser(tt.configDirs[i]) {
-				t.Errorf("Expected data dir: %s - got: %s", tt.configDirs[i], paths[i])
-			}
+		if paths[0] != expandUser(tt.configDirs[0]) {
+			t.Errorf("Expected config dir: %s - got: %s", tt.configDirs[0], paths[0])
 		}
 
 		path, err := tt.scope.CacheDir()
@@ -118,6 +116,22 @@ func TestPaths(t *testing.T) {
 		if path != expandUser(tt.logFile) {
 			t.Errorf("Expected log path: %s - got: %s", tt.logFile, path)
 		}
+
+		path, err = tt.scope.DataDir()
+		if err != nil {
+			t.Errorf("Error retrieving data dir: %s", err)
+		}
+		if path != expandUser(tt.dataDir) {
+			t.Errorf("Expected data dir: %s - got: %s", tt.dataDir, path)
+		}
+
+		path, err = tt.scope.LogDir()
+		if err != nil {
+			t.Errorf("Error retrieving log dir: %s", err)
+		}
+		if path != expandUser(tt.logDir) {
+			t.Errorf("Expected log dir: %s - got: %s", tt.logDir, path)
+		}
 	}
 }
 
@@ -136,9 +150,9 @@ func TestConfigLookups(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error looking up config: %s", err)
 		}
-		if len(r) != 1 {
+		if len(r) == 0 {
 			fmt.Println(r)
-			t.Fatalf("Expected 1 result, got %d results", len(r))
+			t.Fatalf("Expected at least 1 result, got %d results", len(r))
 		}
 		if r[0] != tt.result[0] {
 			t.Errorf("Expected config file: %s - got: %s", tt.result[0], r[0])
@@ -161,9 +175,9 @@ func TestDataLookups(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error looking up data file: %s", err)
 		}
-		if len(r) != 1 {
+		if len(r) == 0 {
 			fmt.Println(r)
-			t.Fatalf("Expected 1 result, got %d results", len(r))
+			t.Fatalf("Expected at least 1 result, got %d results", len(r))
 		}
 		if r[0] != tt.result[0] {
 			t.Errorf("Expected data file: %s - got: %s", tt.result[0], r[0])

@@ -104,9 +104,27 @@ func (s *Scope) CacheDir() (string, error) {
 	return s.appendPaths(p), nil
 }
 
+// DataDir returns the full path to the application's default data directory.
+func (s *Scope) DataDir() (string, error) {
+	p, err := s.dataDirBase()
+	if err != nil {
+		return p, err
+	}
+	return s.appendPaths(p), nil
+}
+
+// LogDir returns the full path to the application's default log directory.
+func (s *Scope) LogDir() (string, error) {
+	p, err := s.logDirBase()
+	if err != nil {
+		return p, err
+	}
+	return s.appendPaths(p), nil
+}
+
 // LogPath returns the full path to the application's default log file.
 func (s *Scope) LogPath(filename string) (string, error) {
-	p, err := s.logDir()
+	p, err := s.logDirBase()
 	if err != nil {
 		return p, err
 	}
@@ -117,7 +135,7 @@ func (s *Scope) LogPath(filename string) (string, error) {
 // DataPath returns the full path to a file in the application's default data
 // directory.
 func (s *Scope) DataPath(filename string) (string, error) {
-	p, err := s.dataDir()
+	p, err := s.dataDirBase()
 	if err != nil {
 		return p, err
 	}

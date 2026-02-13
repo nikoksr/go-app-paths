@@ -15,6 +15,7 @@ func TestPaths(t *testing.T) {
 		configFile string
 		dataFile   string
 		logFile    string
+		logDir     string
 	}{
 		{
 			scope:      NewScope(System, "foobar"),
@@ -23,6 +24,7 @@ func TestPaths(t *testing.T) {
 			configFile: "C:\\ProgramData\\foobar\\Config\\foobar.conf",
 			dataFile:   "C:\\ProgramData\\foobar\\foobar.data",
 			logFile:    "C:\\ProgramData\\foobar\\Logs\\foobar.log",
+			logDir:     "C:\\ProgramData\\foobar\\Logs",
 		},
 		{
 			scope:      NewVendorScope(System, "barcorp", "foobar"),
@@ -31,6 +33,7 @@ func TestPaths(t *testing.T) {
 			configFile: "C:\\ProgramData\\barcorp\\foobar\\Config\\foobar.conf",
 			dataFile:   "C:\\ProgramData\\barcorp\\foobar\\foobar.data",
 			logFile:    "C:\\ProgramData\\barcorp\\foobar\\Logs\\foobar.log",
+			logDir:     "C:\\ProgramData\\barcorp\\foobar\\Logs",
 		},
 		{
 			scope:      NewScope(User, "foobar"),
@@ -39,6 +42,7 @@ func TestPaths(t *testing.T) {
 			configFile: "C:\\Users\\runneradmin\\AppData\\Local\\foobar\\Config\\foobar.conf",
 			dataFile:   "C:\\Users\\runneradmin\\AppData\\Local\\foobar\\foobar.data",
 			logFile:    "C:\\Users\\runneradmin\\AppData\\Local\\foobar\\Logs\\foobar.log",
+			logDir:     "C:\\Users\\runneradmin\\AppData\\Local\\foobar\\Logs",
 		},
 		{
 			scope:      NewCustomHomeScope("C:\\tmp", "", "foobar"),
@@ -47,6 +51,7 @@ func TestPaths(t *testing.T) {
 			configFile: "C:\\tmp\\Config\\foobar.conf",
 			dataFile:   "C:\\tmp\\foobar.data",
 			logFile:    "C:\\tmp\\Logs\\foobar.log",
+			logDir:     "C:\\tmp\\Logs",
 		},
 	}
 
@@ -89,6 +94,22 @@ func TestPaths(t *testing.T) {
 		}
 		if path != expandUser(tt.logFile) {
 			t.Errorf("Expected log path: %s - got: %s", tt.logFile, path)
+		}
+
+		path, err = tt.scope.DataDir()
+		if err != nil {
+			t.Errorf("Error retrieving data dir: %s", err)
+		}
+		if path != expandUser(tt.dataDir) {
+			t.Errorf("Expected data dir: %s - got: %s", tt.dataDir, path)
+		}
+
+		path, err = tt.scope.LogDir()
+		if err != nil {
+			t.Errorf("Error retrieving log dir: %s", err)
+		}
+		if path != expandUser(tt.logDir) {
+			t.Errorf("Expected log dir: %s - got: %s", tt.logDir, path)
 		}
 	}
 }

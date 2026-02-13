@@ -1,14 +1,23 @@
 # go-app-paths
 
-[![Latest Release](https://img.shields.io/github/release/muesli/go-app-paths.svg)](https://github.com/muesli/go-app-paths/releases)
-[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://pkg.go.dev/github.com/muesli/go-app-paths?tab=doc)
-[![Build Status](https://github.com/muesli/go-app-paths/workflows/build/badge.svg)](https://github.com/muesli/go-app-paths/actions)
-[![Coverage Status](https://coveralls.io/repos/github/muesli/go-app-paths/badge.svg?branch=master)](https://coveralls.io/github/muesli/go-app-paths?branch=master)
-[![Go ReportCard](https://goreportcard.com/badge/muesli/go-app-paths)](https://goreportcard.com/report/muesli/go-app-paths)
+[![Latest Release](https://img.shields.io/github/release/nikoksr/go-app-paths.svg)](https://github.com/nikoksr/go-app-paths/releases)
+[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://pkg.go.dev/github.com/nikoksr/go-app-paths?tab=doc)
+[![Go ReportCard](https://goreportcard.com/badge/nikoksr/go-app-paths)](https://goreportcard.com/report/nikoksr/go-app-paths)
 
 Lets you retrieve platform-specific paths (like directories for app-data, cache,
 config, and logs). It is fully compliant with the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html)
 on Unix, but also provides implementations for macOS and Windows systems.
+
+## Fork of [muesli/go-app-paths](https://github.com/muesli/go-app-paths)
+
+This is a fork of [muesli/go-app-paths](https://github.com/muesli/go-app-paths) which addresses some of the open issues in the
+original repository.
+
+Since I'm using this fork for my personal purposes and am not planning on merging it
+back to the original repository, I changed the import path to `github.com/nikoksr/go-app-paths`
+to avoid confusion.
+
+All credits for the original implementation go to [muesli](https://github.com/muesli).
 
 ## Installation
 
@@ -17,12 +26,12 @@ See the [install instructions](https://golang.org/doc/install.html).
 
 To install go-app-paths, simply run:
 
-    go get github.com/muesli/go-app-paths
+    go get github.com/nikoksr/go-app-paths
 
 ## Usage
 
 ```go
-import gap "github.com/muesli/go-app-paths"
+import gap "github.com/nikoksr/go-app-paths"
 ```
 
 ### Scopes
@@ -68,8 +77,36 @@ dirs, err := scope.ConfigDirs()
 | Platform | User Scope                                    | System Scope                 |
 | -------- | --------------------------------------------- | ---------------------------- |
 | Unix     | ["~/.config/app", "/etc/xdg/app", "/etc/app"] | ["/etc/xdg/app", "/etc/app"] |
-| macOS    | ["~/Library/Preferences/app"]                 | ["/Library/Preferences/app"] |
+| macOS    | ["~/Library/Application Support/app"]         | ["/Library/Application Support/app"] |
 | Windows  | ["%LOCALAPPDATA%/app/Config"]                 | ["%PROGRAMDATA%/app/Config"] |
+
+---
+
+`DataDir` retrieves the app's primary data directory:
+
+```go
+dir, err := scope.DataDir()
+```
+
+| Platform | User Scope                       | System Scope                  |
+| -------- | -------------------------------- | ----------------------------- |
+| Unix     | ~/.local/share/app              | /usr/local/share/app         |
+| macOS    | ~/Library/Application Support/app | /Library/Application Support/app |
+| Windows  | %LOCALAPPDATA%/app             | %PROGRAMDATA%/app            |
+
+---
+
+`LogDir` retrieves the app's log directory:
+
+```go
+dir, err := scope.LogDir()
+```
+
+| Platform | User Scope                       | System Scope                  |
+| -------- | -------------------------------- | ----------------------------- |
+| Unix     | ~/.local/share/app              | /var/log/app                   |
+| macOS    | ~/Library/Logs/app             | /Library/Logs/app              |
+| Windows  | %LOCALAPPDATA%/app/Logs        | %PROGRAMDATA%/app/Logs         |
 
 ---
 
@@ -110,7 +147,7 @@ path, err := scope.ConfigPath("filename.conf")
 | Platform | User Scope                              | System Scope                           |
 | -------- | --------------------------------------- | -------------------------------------- |
 | Unix     | ~/.config/app/filename.conf             | /etc/xdg/app/filename.conf             |
-| macOS    | ~/Library/Preferences/app/filename.conf | /Library/Preferences/app/filename.conf |
+| macOS    | ~/Library/Application Support/app/filename.conf | /Library/Application Support/app/filename.conf |
 | Windows  | %LOCALAPPDATA%/app/Config/filename.conf | %PROGRAMDATA%/app/Config/filename.conf |
 
 ---
